@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Цветные кубики</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #edeaf8;
+      font-family: Arial, sans-serif;
+      color: #3b3457;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: default;
+    }
+
+    .game {
+      width: 100%;
+      min-height: 100svh;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 1500px;
+      margin: auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: clamp(20px, 3vw, 34px);
+      margin: 0;
+    }
+
+    .small {
+      border: 0;
+      border-radius: 15px;
+      padding: 12px;
+      background: white;
+      color: #554775;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: 1fr 240px 1fr;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .field {
+      border: 2px solid white;
+      border-radius: 30px;
+      padding: 18px;
+      background: #fff8ee;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .field.right {
+      background: #eff9ff;
+    }
+
+    .card {
+      position: relative;
+      min-height: 120px;
+      border: 3px solid var(--color);
+      border-radius: 24px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .2s, opacity .2s;
+      box-shadow: 0 5px 0 #00000009;
+    }
+
+    .card:hover:not(:disabled) {
+      transform: translateY(-3px);
+    }
+
+    .card:disabled {
+      opacity: .65;
+    }
+
+    .card.used {
+      visibility: hidden;
+    }
+
+    .ball {
+      position: absolute;
+      width: 27px;
+      height: 27px;
+      border-radius: 50%;
+      background: var(--color);
+      right: 10px;
+      top: 10px;
+      box-shadow: inset -4px -4px 0 #00000015;
+    }
+
+    .art {
+      width: 80%;
+      height: 100px;
+      object-fit: contain;
+    }
+
+    .emoji {
+      font-size: clamp(45px, 6vw, 78px);
+    }
+
+    .center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .hero {
+      height: 175px;
+      width: 150px;
+    }
+
+    .dice {
+      display: flex;
+      gap: 16px;
+    }
+
+    .die {
+      height: 80px;
+      width: 80px;
+      border-radius: 18px;
+      border: 4px solid white;
+      background: #c9bfdc;
+      box-shadow: 0 7px 0 #00000015;
+      display: grid;
+      place-items: center;
+    }
+
+    .die span {
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    .rolling {
+      animation: shake .14s infinite alternate;
+    }
+
+    @keyframes shake {
+      to {
+        transform: rotate(14deg) translateY(-8px);
+      }
+    }
+
+    .primary {
+      background: #7760ca;
+      color: white;
+      border: 0;
+      border-radius: 18px;
+      padding: 16px 24px;
+      font-weight: bold;
+      box-shadow: 0 5px 0 #5d47aa;
+    }
+
+    .primary:disabled {
+      opacity: .5;
+    }
+
+    .status {
+      text-align: center;
+      min-height: 42px;
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .sentence {
+      background: white;
+      border-radius: 24px;
+      min-height: 100px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      font-size: clamp(18px, 2.4vw, 28px);
+    }
+
+    .slot {
+      width: 85px;
+      height: 75px;
+      border: 2px dashed #d1c5e8;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+    }
+
+    .slot .emoji {
+      font-size: 48px;
+    }
+
+    .slot img {
+      width: 90%;
+      height: 90%;
+      object-fit: contain;
+    }
+
+    .progress {
+      font-size: 16px;
+    }
+
+    dialog {
+      border: 0;
+      border-radius: 25px;
+      padding: 28px;
+      max-width: 520px;
+      width: 90%;
+      line-height: 1.6;
+    }
+
+    dialog::backdrop {
+      background: #30234688;
+    }
+
+    .confetti {
+      position: fixed;
+      top: -25px;
+      font-size: 26px;
+      pointer-events: none;
+      animation: fall 2s linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(360deg);
+      }
+    }
+
+    @media (max-width: 750px) {
+      .game {
+        padding: 8px;
+        gap: 8px;
+      }
+
+      .board {
+        grid-template-columns: 1fr 150px 1fr;
+        gap: 6px;
+      }
+
+      .field {
+        padding: 8px;
+        gap: 8px;
+        border-radius: 20px;
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(6, 1fr);
+      }
+
+      .card {
+        min-height: 70px;
+        border-radius: 15px;
+      }
+
+      .emoji {
+        font-size: 42px;
+      }
+
+      .ball {
+        width: 18px;
+        height: 18px;
+        top: 5px;
+        right: 5px;
+      }
+
+      .hero {
+        width: 120px;
+        height: 140px;
+      }
+
+      .die {
+        width: 60px;
+        height: 60px;
+      }
+
+      .dice {
+        gap: 8px;
+      }
+
+      .primary {
+        padding: 13px;
+        font-size: 15px;
+      }
+
+      .status {
+        font-size: 14px;
+      }
+
+      .art {
+        height: 65px;
+      }
+
+      .sentence {
+        gap: 8px;
+      }
+
+      .slot {
+        width: 65px;
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="game">
+    <header>
+      <h1>Цветные кубики</h1>
+
+      <div>
+        <button class="small" id="help">Правила</button>
+        <button class="small" id="reset" aria-label="Начать заново">↻</button>
+      </div>
+    </header>
+
+    <section class="board">
+      <div class="field" id="left"></div>
+
+      <div class="center">
+        <!-- Временная девочка. Позже заменим на вашу картинку. -->
+        <svg
+          class="hero"
+          viewBox="0 0 150 180"
+          aria-label="Девочка"
+          role="img"
+        >
+          <path
+            fill="#75452f"
+            d="M37 76Q13 10 75 8Q139 10 115 80L135 105L104 104L45 104L15 105Z"
+          />
+          <circle cx="75" cy="59" r="36" fill="#ffd5b5"/>
+          <path
+            d="M39 46Q48 10 78 20Q106 18 111 44Q80 42 63 28Q58 44 39 46"
+            fill="#75452f"
+          />
+          <circle cx="62" cy="57" r="4" fill="#3d3540"/>
+          <circle cx="89" cy="57" r="4" fill="#3d3540"/>
+          <path
+            d="M65 74Q76 85 88 74"
+            fill="none"
+            stroke="#c76e70"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+          <ellipse cx="50" cy="69" rx="7" ry="4" fill="#f7aaa1"/>
+          <ellipse cx="101" cy="69" rx="7" ry="4" fill="#f7aaa1"/>
+          <path d="M56 94L93 94L110 149L39 149Z" fill="#ab8ee5"/>
+          <path
+            d="M51 100L25 130M98 100L125 130"
+            stroke="#ffd5b5"
+            stroke-width="12"
+            stroke-linecap="round"
+          />
+          <path
+            d="M58 148L57 167M92 148L94 167"
+            stroke="#ffd5b5"
+            stroke-width="12"
+          />
+          <path
+            d="M44 169L63 169M89 169L108 169"
+            stroke="#6653a1"
+            stroke-width="10"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <div class="dice">
+          <div class="die" id="die0" aria-label="Левый кубик">
+            <span></span>
+          </div>
+
+          <div class="die" id="die1" aria-label="Правый кубик">
+            <span></span>
+          </div>
+        </div>
+
+        <button class="primary" id="roll">Бросить кубики</button>
+
+        <div class="status" id="status" aria-live="polite"></div>
+        <div class="progress" id="progress"></div>
+      </div>
+
+      <div class="field right" id="right"></div>
+    </section>
+
+    <div class="sentence">
+      <span>Девочка выбирает</span>
+      <div class="slot" id="slot0"></div>
+      <span>и</span>
+      <div class="slot" id="slot1"></div>
+      <span>.</span>
+    </div>
+  </main>
+
+  <dialog id="rules">
+    <h2>Как играть</h2>
+
+    <p>
+      Бросьте два кубика. Левый кубик подскажет цвет шарика
+      на левом поле, правый — на правом.
+    </p>
+
+    <p>
+      Нажмите по одной картинке с шариком нужного цвета.
+      Составьте предложение: «Девочка выбирает … и …».
+    </p>
+
+    <p>
+      Выбранные картинки исчезают с поля. Использовать их
+      повторно нельзя. После предложения бросьте кубики снова.
+    </p>
+
+    <button class="primary" id="close">Начать</button>
+  </dialog>
+
+  <script>
+    // ЦВЕТА
+    const COLORS = [
+      { name: 'красный',    hex: '#ef575d' },
+      { name: 'жёлтый',     hex: '#ffd54b' },
+      { name: 'зелёный',    hex: '#63bd79' },
+      { name: 'синий',      hex: '#4998ed' },
+      { name: 'оранжевый',  hex: '#ff9c42' },
+      { name: 'фиолетовый', hex: '#ad72db' }
+    ];
+
+    /*
+      КАРТИНКИ
+
+      color — номер цвета из списка выше:
+      0 — красный
+      1 — жёлтый
+      2 — зелёный
+      3 — синий
+      4 — оранжевый
+      5 — фиолетовый
+
+      name — название для предложения.
+      emoji — временный рисунок.
+      img — путь к вашей картинке.
+
+      Пример:
+      { color: 0, name: 'яблоко', emoji: '🍎', img: 'images/apple.png' }
+
+      Цвет относится к шарику, а не к самому предмету.
+    */
+
+    const ITEMS = [
+      // ЛЕВОЕ ПОЛЕ
+      [
+        { color: 0, name: 'яблоко',  emoji: '🍎', img: '' },
+        { color: 1, name: 'грушу',   emoji: '🍐', img: '' },
+        { color: 2, name: 'мяч',     emoji: '⚽', img: '' },
+        { color: 3, name: 'машинку', emoji: '🚗', img: '' },
+        { color: 4, name: 'мишку',   emoji: '🧸', img: '' },
+        { color: 5, name: 'куклу',   emoji: '🪆', img: '' }
+      ],
+
+      // ПРАВОЕ ПОЛЕ
+      [
+        { color: 0, name: 'торт',     emoji: '🎂', img: '' },
+        { color: 1, name: 'цветок',   emoji: '🌼', img: '' },
+        { color: 2, name: 'книгу',    emoji: '📚', img: '' },
+        { color: 3, name: 'самолёт',  emoji: '✈️', img: '' },
+        { color: 4, name: 'подарок',  emoji: '🎁', img: '' },
+        { color: 5, name: 'зонтик',   emoji: '☂️', img: '' }
+      ]
+    ];
+
+    let used;
+    let targets;
+    let selected;
+    let phase;
+    let timer;
+    let rounds;
+
+    const $ = id => document.getElementById(id);
+
+    function art(item) {
+      const element = document.createElement(item.img ? 'img' : 'span');
+      element.className = item.img ? 'art' : 'emoji';
+
+      if (item.img) {
+        element.src = item.img;
+        element.alt = item.name;
+
+        element.onerror = () => {
+          const fallback = document.createElement('span');
+          fallback.className = 'emoji';
+          fallback.textContent = item.emoji;
+          element.replaceWith(fallback);
+        };
+      } else {
+        element.textContent = item.emoji;
+      }
+
+      return element;
+    }
+
+    function render() {
+      ['left', 'right'].forEach((id, side) => {
+        $(id).replaceChildren();
+
+        ITEMS[side].forEach((item, index) => {
+          const button = document.createElement('button');
+
+          button.className =
+            'card' + (used[side].has(index) ? ' used' : '');
+
+          button.style.setProperty('--color', COLORS[item.color].hex);
+
+          button.setAttribute(
+            'aria-label',
+            item.name + ', ' + COLORS[item.color].name + ' шарик'
+          );
+
+          button.disabled =
+            phase !== 'choose' ||
+            selected[side] !== null ||
+            used[side].has(index);
+
+          button.append(art(item));
+
+          const dot = document.createElement('span');
+          dot.className = 'ball';
+          button.append(dot);
+
+          button.onclick = () => choose(side, index);
+
+          $(id).append(button);
+        });
+      });
+
+      $('roll').disabled =
+        phase === 'rolling' ||
+        phase === 'choose' ||
+        phase === 'done';
+
+      $('roll').textContent =
+        rounds ? 'Следующий бросок' : 'Бросить кубики';
+
+      $('progress').textContent =
+        `Собрано пар: ${rounds} / ${Math.min(...ITEMS.map(a => a.length))}`;
+    }
+
+    function setDie(side, color) {
+      $('die' + side).style.background = COLORS[color].hex;
+
+      $('die' + side).setAttribute(
+        'aria-label',
+        (side ? 'Правый' : 'Левый') +
+        ' кубик: ' +
+        COLORS[color].name
+      );
+    }
+
+    function available(side) {
+      return ITEMS[side]
+        .map((item, index) => index)
+        .filter(index => !used[side].has(index));
+    }
+
+    function roll() {
+      if (phase !== 'ready') return;
+
+      selected = [null, null];
+
+      $('slot0').replaceChildren();
+      $('slot1').replaceChildren();
+
+      phase = 'rolling';
+      $('status').textContent = 'Кубики бросаются…';
+
+      render();
+
+      [0, 1].forEach(side => {
+        $('die' + side).classList.add('rolling');
+      });
+
+      let ticks = 0;
+
+      timer = setInterval(() => {
+        [0, 1].forEach(side => {
+          setDie(side, Math.floor(Math.random() * 6));
+        });
+
+        if (++ticks >= 9) {
+          clearInterval(timer);
+
+          [0, 1].forEach(side => {
+            const remaining = available(side);
+
+            const randomIndex =
+              remaining[Math.floor(Math.random() * remaining.length)];
+
+            targets[side] = ITEMS[side][randomIndex].color;
+
+            setDie(side, targets[side]);
+            $('die' + side).classList.remove('rolling');
+          });
+
+          phase = 'choose';
+          $('status').textContent = 'Выбери картинку с каждой стороны';
+
+          render();
+        }
+      }, 80);
+    }
+
+    function choose(side, index) {
+      if (
+        phase !== 'choose' ||
+        selected[side] !== null ||
+        used[side].has(index)
+      ) {
+        return;
+      }
+
+      const item = ITEMS[side][index];
+
+      if (item.color !== targets[side]) {
+        $('status').textContent = 'Посмотри на цвет кубика ещё раз';
+        return;
+      }
+
+      selected[side] = index;
+      used[side].add(index);
+
+      $('slot' + side).replaceChildren(art(item));
+
+      if (selected.every(value => value !== null)) {
+        rounds++;
+
+        $('status').textContent =
+          `Девочка выбирает ${ITEMS[0][selected[0]].name}` +
+          ` и ${ITEMS[1][selected[1]].name}.`;
+
+        phase =
+          available(0).length && available(1).length
+            ? 'ready'
+            : 'done';
+
+        if (phase === 'done') {
+          $('status').textContent = 'Все картинки собраны! Молодец!';
+          celebrate();
+        }
+      } else {
+        $('status').textContent =
+          'Отлично! Теперь выбери на другой стороне';
+      }
+
+      render();
+    }
+
+    function celebrate() {
+      for (let index = 0; index < 35; index++) {
+        const element = document.createElement('span');
+
+        element.className = 'confetti';
+        element.textContent = ['⭐', '🎉', '✨'][index % 3];
+
+        element.style.left = Math.random() * 100 + 'vw';
+        element.style.animationDelay = Math.random() * .6 + 's';
+
+        document.body.append(element);
+
+        setTimeout(() => element.remove(), 3000);
+      }
+    }
+
+    function reset() {
+      clearInterval(timer);
+
+      document.querySelectorAll('.confetti').forEach(element => {
+        element.remove();
+      });
+
+      used = [new Set(), new Set()];
+      targets = [null, null];
+      selected = [null, null];
+      rounds = 0;
+      phase = 'ready';
+
+      [0, 1].forEach(side => {
+        $('slot' + side).replaceChildren();
+        $('die' + side).classList.remove('rolling');
+        $('die' + side).style.background = '#c9bfdc';
+      });
+
+      $('status').textContent = 'Нажми «Бросить кубики»';
+
+      render();
+    }
+
+    $('roll').onclick = roll;
+    $('reset').onclick = reset;
+    $('help').onclick = () => $('rules').showModal();
+    $('close').onclick = () => $('rules').close();
+
+    reset();
+    $('rules').showModal();
+  </script>
+</body>
+</html>
