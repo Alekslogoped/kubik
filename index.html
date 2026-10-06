@@ -1,729 +1,465 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Цветные кубики</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: #edeaf8;
-      font-family: Arial, sans-serif;
-      color: #3b3457;
-    }
-
-    button {
-      font: inherit;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      cursor: default;
-    }
-
-    .game {
-      width: 100%;
-      min-height: 100svh;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      max-width: 1500px;
-      margin: auto;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    h1 {
-      font-size: clamp(20px, 3vw, 34px);
-      margin: 0;
-    }
-
-    .small {
-      border: 0;
-      border-radius: 15px;
-      padding: 12px;
-      background: white;
-      color: #554775;
-    }
-
-    .board {
-      display: grid;
-      grid-template-columns: 1fr 240px 1fr;
-      gap: 16px;
-      flex: 1;
-    }
-
-    .field {
-      border: 2px solid white;
-      border-radius: 30px;
-      padding: 18px;
-      background: #fff8ee;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      gap: 14px;
-    }
-
-    .field.right {
-      background: #eff9ff;
-    }
-
-    .card {
-      position: relative;
-      min-height: 120px;
-      border: 3px solid var(--color);
-      border-radius: 24px;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform .2s, opacity .2s;
-      box-shadow: 0 5px 0 #00000009;
-    }
-
-    .card:hover:not(:disabled) {
-      transform: translateY(-3px);
-    }
-
-    .card:disabled {
-      opacity: .65;
-    }
-
-    .card.used {
-      visibility: hidden;
-    }
-
-    .ball {
-      position: absolute;
-      width: 27px;
-      height: 27px;
-      border-radius: 50%;
-      background: var(--color);
-      right: 10px;
-      top: 10px;
-      box-shadow: inset -4px -4px 0 #00000015;
-    }
-
-    .art {
-      width: 80%;
-      height: 100px;
-      object-fit: contain;
-    }
-
-    .emoji {
-      font-size: clamp(45px, 6vw, 78px);
-    }
-
-    .center {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-    }
-
-    .hero {
-      height: 175px;
-      width: 150px;
-    }
-
-    .dice {
-      display: flex;
-      gap: 16px;
-    }
-
-    .die {
-      height: 80px;
-      width: 80px;
-      border-radius: 18px;
-      border: 4px solid white;
-      background: #c9bfdc;
-      box-shadow: 0 7px 0 #00000015;
-      display: grid;
-      place-items: center;
-    }
-
-    .die span {
-      width: 24px;
-      height: 24px;
-      background: #fff;
-      border-radius: 50%;
-    }
-
-    .rolling {
-      animation: shake .14s infinite alternate;
-    }
-
-    @keyframes shake {
-      to {
-        transform: rotate(14deg) translateY(-8px);
-      }
-    }
-
-    .primary {
-      background: #7760ca;
-      color: white;
-      border: 0;
-      border-radius: 18px;
-      padding: 16px 24px;
-      font-weight: bold;
-      box-shadow: 0 5px 0 #5d47aa;
-    }
-
-    .primary:disabled {
-      opacity: .5;
-    }
-
-    .status {
-      text-align: center;
-      min-height: 42px;
-      font-size: 17px;
-      line-height: 1.3;
-    }
-
-    .sentence {
-      background: white;
-      border-radius: 24px;
-      min-height: 100px;
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      font-size: clamp(18px, 2.4vw, 28px);
-    }
-
-    .slot {
-      width: 85px;
-      height: 75px;
-      border: 2px dashed #d1c5e8;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-    }
-
-    .slot .emoji {
-      font-size: 48px;
-    }
-
-    .slot img {
-      width: 90%;
-      height: 90%;
-      object-fit: contain;
-    }
-
-    .progress {
-      font-size: 16px;
-    }
-
-    dialog {
-      border: 0;
-      border-radius: 25px;
-      padding: 28px;
-      max-width: 520px;
-      width: 90%;
-      line-height: 1.6;
-    }
-
-    dialog::backdrop {
-      background: #30234688;
-    }
-
-    .confetti {
-      position: fixed;
-      top: -25px;
-      font-size: 26px;
-      pointer-events: none;
-      animation: fall 2s linear forwards;
-    }
-
-    @keyframes fall {
-      to {
-        transform: translateY(110vh) rotate(360deg);
-      }
-    }
-
-    @media (max-width: 750px) {
-      .game {
-        padding: 8px;
-        gap: 8px;
-      }
-
-      .board {
-        grid-template-columns: 1fr 150px 1fr;
-        gap: 6px;
-      }
-
-      .field {
-        padding: 8px;
-        gap: 8px;
-        border-radius: 20px;
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(6, 1fr);
-      }
-
-      .card {
-        min-height: 70px;
-        border-radius: 15px;
-      }
-
-      .emoji {
-        font-size: 42px;
-      }
-
-      .ball {
-        width: 18px;
-        height: 18px;
-        top: 5px;
-        right: 5px;
-      }
-
-      .hero {
-        width: 120px;
-        height: 140px;
-      }
-
-      .die {
-        width: 60px;
-        height: 60px;
-      }
-
-      .dice {
-        gap: 8px;
-      }
-
-      .primary {
-        padding: 13px;
-        font-size: 15px;
-      }
-
-      .status {
-        font-size: 14px;
-      }
-
-      .art {
-        height: 65px;
-      }
-
-      .sentence {
-        gap: 8px;
-      }
-
-      .slot {
-        width: 65px;
-        height: 60px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Моя одевалка</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f8f3ff;
+  color: #47375d;
+}
+button { font: inherit; cursor: pointer; }
+.header { text-align: center; padding: 18px 12px 8px; }
+.header h1 { margin: 0 0 8px; font-size: 28px; }
+.header p { margin: 0; }
+.game {
+  max-width: 1100px;
+  margin: 16px auto;
+  padding: 0 16px;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(300px, 1fr);
+  gap: 20px;
+}
+.stage, .wardrobe {
+  background: white;
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow: 0 8px 28px #65458112;
+}
+#scene {
+  display: block;
+  width: 100%;
+  max-height: 65vh;
+  object-fit: contain;
+  border-radius: 18px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.action {
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 18px;
+  background: #efe8fa;
+  color: #47375d;
+  font-weight: bold;
+}
+.primary { background: #9260d5; color: white; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.tab {
+  border: 0;
+  background: #f3edf9;
+  color: #47375d;
+  border-radius: 12px;
+  padding: 11px 13px;
+}
+.tab.active { background: #9260d5; color: white; }
+#categoryTitle { font-size: 21px; margin: 24px 0 14px; }
+.items {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.item {
+  min-height: 110px;
+  border: 3px solid transparent;
+  background: #f8f5fc;
+  border-radius: 18px;
+  padding: 12px 5px;
+  color: #47375d;
+}
+.item.selected { border-color: #9260d5; background: #f0e6ff; }
+.item .icon { display: block; font-size: 36px; margin-bottom: 8px; }
+.note { font-size: 14px; line-height: 1.5; color: #84758f; }
+dialog {
+  border: 0;
+  border-radius: 24px;
+  padding: 20px;
+  width: min(440px, 94vw);
+  max-height: 94vh;
+  overflow: auto;
+  text-align: center;
+}
+dialog::backdrop { background: #28193899; }
+dialog h2 { margin: 0 0 12px; }
+#photo { display: block; width: 100%; max-height: 62vh; object-fit: contain; }
+#status { text-align: center; min-height: 22px; }
+button:focus-visible, a:focus-visible {
+  outline: 3px solid #f7a531;
+  outline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .game { grid-template-columns: 1fr; gap: 12px; }
+  #scene { max-height: 49vh; }
+  .header h1 { font-size: 24px; }
+}
+</style>
 </head>
-
 <body>
-  <main class="game">
-    <header>
-      <h1>Цветные кубики</h1>
+<header class="header">
+  <h1>✨ Моя одевалка</h1>
+  <p>Выбери образ и сделай фото!</p>
+</header>
 
-      <div>
-        <button class="small" id="help">Правила</button>
-        <button class="small" id="reset" aria-label="Начать заново">↻</button>
-      </div>
-    </header>
-
-    <section class="board">
-      <div class="field" id="left"></div>
-
-      <div class="center">
-        <!-- Временная девочка. Позже заменим на вашу картинку. -->
-        <svg
-          class="hero"
-          viewBox="0 0 150 180"
-          aria-label="Девочка"
-          role="img"
-        >
-          <path
-            fill="#75452f"
-            d="M37 76Q13 10 75 8Q139 10 115 80L135 105L104 104L45 104L15 105Z"
-          />
-          <circle cx="75" cy="59" r="36" fill="#ffd5b5"/>
-          <path
-            d="M39 46Q48 10 78 20Q106 18 111 44Q80 42 63 28Q58 44 39 46"
-            fill="#75452f"
-          />
-          <circle cx="62" cy="57" r="4" fill="#3d3540"/>
-          <circle cx="89" cy="57" r="4" fill="#3d3540"/>
-          <path
-            d="M65 74Q76 85 88 74"
-            fill="none"
-            stroke="#c76e70"
-            stroke-width="3"
-            stroke-linecap="round"
-          />
-          <ellipse cx="50" cy="69" rx="7" ry="4" fill="#f7aaa1"/>
-          <ellipse cx="101" cy="69" rx="7" ry="4" fill="#f7aaa1"/>
-          <path d="M56 94L93 94L110 149L39 149Z" fill="#ab8ee5"/>
-          <path
-            d="M51 100L25 130M98 100L125 130"
-            stroke="#ffd5b5"
-            stroke-width="12"
-            stroke-linecap="round"
-          />
-          <path
-            d="M58 148L57 167M92 148L94 167"
-            stroke="#ffd5b5"
-            stroke-width="12"
-          />
-          <path
-            d="M44 169L63 169M89 169L108 169"
-            stroke="#6653a1"
-            stroke-width="10"
-            stroke-linecap="round"
-          />
-        </svg>
-
-        <div class="dice">
-          <div class="die" id="die0" aria-label="Левый кубик">
-            <span></span>
-          </div>
-
-          <div class="die" id="die1" aria-label="Правый кубик">
-            <span></span>
-          </div>
-        </div>
-
-        <button class="primary" id="roll">Бросить кубики</button>
-
-        <div class="status" id="status" aria-live="polite"></div>
-        <div class="progress" id="progress"></div>
-      </div>
-
-      <div class="field right" id="right"></div>
-    </section>
-
-    <div class="sentence">
-      <span>Девочка выбирает</span>
-      <div class="slot" id="slot0"></div>
-      <span>и</span>
-      <div class="slot" id="slot1"></div>
-      <span>.</span>
+<main class="game">
+  <section class="stage" aria-label="Герой">
+    <canvas id="scene" width="600" height="800"
+      aria-label="Герой в выбранной одежде"></canvas>
+    <div class="actions">
+      <button class="action" id="reset">↩ Сначала</button>
+      <button class="action primary" id="shoot">📸 Сделать фото</button>
     </div>
-  </main>
+  </section>
 
-  <dialog id="rules">
-    <h2>Как играть</h2>
+  <section class="wardrobe">
+    <nav class="tabs" id="tabs" aria-label="Разделы гардероба"></nav>
+    <h2 id="categoryTitle"></h2>
+    <div class="items" id="items"></div>
+    <p class="note">Нажми на вещь, чтобы примерить её.</p>
+  </section>
+</main>
 
-    <p>
-      Бросьте два кубика. Левый кубик подскажет цвет шарика
-      на левом поле, правый — на правом.
-    </p>
+<p id="status" role="status"></p>
 
-    <p>
-      Нажмите по одной картинке с шариком нужного цвета.
-      Составьте предложение: «Девочка выбирает … и …».
-    </p>
+<dialog id="photoDialog">
+  <h2>📸 Твой образ готов!</h2>
+  <img id="photo" alt="Фото героя в выбранном образе">
+  <div class="actions">
+    <button class="action primary" id="download">⬇ Скачать фото</button>
+    <button class="action" id="closePhoto">Переодеть</button>
+  </div>
+</dialog>
 
-    <p>
-      Выбранные картинки исчезают с поля. Использовать их
-      повторно нельзя. После предложения бросьте кубики снова.
-    </p>
+<script>
+/*
+  НАШИ КАРТИНКИ
 
-    <button class="primary" id="close">Начать</button>
-  </dialog>
+  Сейчас src пустые — рисуются демонстрационные варианты.
+  Позже укажем пути, например:
+  heroSrc = "images/hero.png";
+  src: "images/top-pink.png"
 
-  <script>
-    // ЦВЕТА
-    const COLORS = [
-      { name: 'красный',    hex: '#ef575d' },
-      { name: 'жёлтый',     hex: '#ffd54b' },
-      { name: 'зелёный',    hex: '#63bd79' },
-      { name: 'синий',      hex: '#4998ed' },
-      { name: 'оранжевый',  hex: '#ff9c42' },
-      { name: 'фиолетовый', hex: '#ad72db' }
-    ];
+  Герой и все вещи: прозрачные PNG размером 600 × 800.
+  Вещь должна находиться на нужном месте относительно героя.
+  Фоны: 600 × 800, без прозрачности.
+*/
+const heroSrc = "";
 
-    /*
-      КАРТИНКИ
+const catalog = {
+  tops: {
+    title: "Выбери верх", label: "👕 Верх",
+    items: [
+      { id: "pink", name: "Розовый", icon: "👚", color: "#f293bc", src: "" },
+      { id: "blue", name: "Голубой", icon: "👕", color: "#89c9ed", src: "" },
+      { id: "yellow", name: "Жёлтый", icon: "👕", color: "#f6d879", src: "" }
+    ]
+  },
+  bottoms: {
+    title: "Выбери низ", label: "👖 Низ",
+    items: [
+      { id: "skirt", name: "Юбка", icon: "👗", color: "#ba9ae5", src: "" },
+      { id: "jeans", name: "Джинсы", icon: "👖", color: "#729cd7", src: "" },
+      { id: "shorts", name: "Шорты", icon: "🩳", color: "#91cfbb", src: "" }
+    ]
+  },
+  shoes: {
+    title: "Выбери обувь", label: "👟 Обувь",
+    items: [
+      { id: "purple", name: "Сиреневая", icon: "🥿", color: "#9470cb", src: "" },
+      { id: "pink", name: "Розовая", icon: "👟", color: "#e68caf", src: "" },
+      { id: "mint", name: "Мятная", icon: "👟", color: "#75bbaa", src: "" }
+    ]
+  },
+  hair: {
+    title: "Выбери причёску", label: "💇 Волосы",
+    items: [
+      { id: "brown", name: "Каштановые", icon: "👩", color: "#80543d", src: "" },
+      { id: "blonde", name: "Светлые", icon: "👱‍♀️", color: "#e3bd68", src: "" },
+      { id: "red", name: "Рыжие", icon: "👩‍🦰", color: "#bc7044", src: "" }
+    ]
+  },
+  accessories: {
+    title: "Выбери аксессуар", label: "🎀 Аксессуары",
+    items: [
+      { id: "none", name: "Без украшения", icon: "✖", src: "" },
+      { id: "bow", name: "Бант", icon: "🎀", color: "#e76a9b", src: "" },
+      { id: "crown", name: "Корона", icon: "👑", color: "#efc752", src: "" }
+    ]
+  },
+  backgrounds: {
+    title: "Выбери фон", label: "🌈 Фон",
+    items: [
+      { id: "studio", name: "Студия", icon: "💜", color: "#eee3fa", src: "" },
+      { id: "garden", name: "Полянка", icon: "🌳", color: "#dff2e7", src: "" },
+      { id: "sunny", name: "Солнечный", icon: "☀️", color: "#fff0ce", src: "" }
+    ]
+  }
+};
 
-      color — номер цвета из списка выше:
-      0 — красный
-      1 — жёлтый
-      2 — зелёный
-      3 — синий
-      4 — оранжевый
-      5 — фиолетовый
+const initial = {
+  tops: "pink", bottoms: "skirt", shoes: "purple",
+  hair: "brown", accessories: "none", backgrounds: "studio"
+};
 
-      name — название для предложения.
-      emoji — временный рисунок.
-      img — путь к вашей картинке.
+let selected = { ...initial };
+let activeCategory = "tops";
+let photoUrl = "";
 
-      Пример:
-      { color: 0, name: 'яблоко', emoji: '🍎', img: 'images/apple.png' }
+const canvas = document.getElementById("scene");
+const ctx = canvas.getContext("2d");
+const dialog = document.getElementById("photoDialog");
+const status = document.getElementById("status");
+const images = new Map();
 
-      Цвет относится к шарику, а не к самому предмету.
-    */
+function getItem(category) {
+  return catalog[category].items.find(item => item.id === selected[category]);
+}
 
-    const ITEMS = [
-      // ЛЕВОЕ ПОЛЕ
-      [
-        { color: 0, name: 'яблоко',  emoji: '🍎', img: '' },
-        { color: 1, name: 'грушу',   emoji: '🍐', img: '' },
-        { color: 2, name: 'мяч',     emoji: '⚽', img: '' },
-        { color: 3, name: 'машинку', emoji: '🚗', img: '' },
-        { color: 4, name: 'мишку',   emoji: '🧸', img: '' },
-        { color: 5, name: 'куклу',   emoji: '🪆', img: '' }
-      ],
+function ellipse(x, y, rx, ry, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
 
-      // ПРАВОЕ ПОЛЕ
-      [
-        { color: 0, name: 'торт',     emoji: '🎂', img: '' },
-        { color: 1, name: 'цветок',   emoji: '🌼', img: '' },
-        { color: 2, name: 'книгу',    emoji: '📚', img: '' },
-        { color: 3, name: 'самолёт',  emoji: '✈️', img: '' },
-        { color: 4, name: 'подарок',  emoji: '🎁', img: '' },
-        { color: 5, name: 'зонтик',   emoji: '☂️', img: '' }
-      ]
-    ];
+function polygon(points, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  points.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+  ctx.closePath();
+  ctx.fill();
+}
 
-    let used;
-    let targets;
-    let selected;
-    let phase;
-    let timer;
-    let rounds;
+function rectangle(x, y, w, h, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, w, h);
+}
 
-    const $ = id => document.getElementById(id);
+function drawImage(src) {
+  const img = images.get(src);
+  if (!img) return false;
+  ctx.drawImage(img, 0, 0, 600, 800);
+  return true;
+}
 
-    function art(item) {
-      const element = document.createElement(item.img ? 'img' : 'span');
-      element.className = item.img ? 'art' : 'emoji';
+function drawHero() {
+  if (heroSrc && drawImage(heroSrc)) return;
 
-      if (item.img) {
-        element.src = item.img;
-        element.alt = item.name;
+  const skin = "#f6ceb3";
+  ellipse(300, 702, 110, 18, "#00000012");
 
-        element.onerror = () => {
-          const fallback = document.createElement('span');
-          fallback.className = 'emoji';
-          fallback.textContent = item.emoji;
-          element.replaceWith(fallback);
-        };
-      } else {
-        element.textContent = item.emoji;
-      }
+  // Ноги, руки, шея и тело.
+  rectangle(253, 480, 38, 192, skin);
+  rectangle(309, 480, 38, 192, skin);
+  ellipse(232, 396, 22, 100, skin);
+  ellipse(368, 396, 22, 100, skin);
+  rectangle(282, 260, 36, 48, skin);
+  ellipse(300, 390, 65, 110, skin);
 
-      return element;
+  // Базовая одежда.
+  rectangle(244, 320, 112, 145, "#ffffff");
+  rectangle(250, 460, 100, 50, "#ffffff");
+
+  // Голова, уши и лицо.
+  ellipse(236, 205, 13, 22, skin);
+  ellipse(364, 205, 13, 22, skin);
+  ellipse(300, 205, 66, 80, skin);
+  ellipse(277, 207, 6, 9, "#493e43");
+  ellipse(323, 207, 6, 9, "#493e43");
+  ellipse(263, 234, 12, 7, "#efacaa");
+  ellipse(337, 234, 12, 7, "#efacaa");
+
+  ctx.strokeStyle = "#bd786e";
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.arc(300, 234, 15, 0.15, Math.PI - 0.15);
+  ctx.stroke();
+}
+
+function drawLayer(category) {
+  const item = getItem(category);
+  if (item.src && drawImage(item.src)) return;
+
+  const color = item.color;
+  if (category === "bottoms") {
+    if (item.id === "skirt") {
+      polygon([[245,430],[355,430],[384,554],[216,554]], color);
+    } else {
+      const height = item.id === "jeans" ? 195 : 82;
+      rectangle(245, 438, 110, 42, color);
+      rectangle(245, 470, 47, height, color);
+      rectangle(308, 470, 47, height, color);
     }
+  }
 
-    function render() {
-      ['left', 'right'].forEach((id, side) => {
-        $(id).replaceChildren();
+  if (category === "tops") {
+    polygon([
+      [265,300],[282,291],[300,311],[318,291],[335,300],
+      [387,343],[364,377],[351,351],[355,452],
+      [245,452],[249,351],[236,377],[213,343]
+    ], color);
+    ellipse(300, 350, 13, 13, "#ffffff88");
+  }
 
-        ITEMS[side].forEach((item, index) => {
-          const button = document.createElement('button');
+  if (category === "shoes") {
+    ellipse(267, 678, 35, 17, color);
+    ellipse(333, 678, 35, 17, color);
+  }
 
-          button.className =
-            'card' + (used[side].has(index) ? ' used' : '');
+  if (category === "hair") {
+    ellipse(300, 142, 70, 39, color);
+    ellipse(240, 190, 17, 59, color);
+    ellipse(360, 190, 17, 59, color);
+    polygon([[242,148],[351,146],[335,184],[294,159],[257,190]], color);
+  }
 
-          button.style.setProperty('--color', COLORS[item.color].hex);
-
-          button.setAttribute(
-            'aria-label',
-            item.name + ', ' + COLORS[item.color].name + ' шарик'
-          );
-
-          button.disabled =
-            phase !== 'choose' ||
-            selected[side] !== null ||
-            used[side].has(index);
-
-          button.append(art(item));
-
-          const dot = document.createElement('span');
-          dot.className = 'ball';
-          button.append(dot);
-
-          button.onclick = () => choose(side, index);
-
-          $(id).append(button);
-        });
-      });
-
-      $('roll').disabled =
-        phase === 'rolling' ||
-        phase === 'choose' ||
-        phase === 'done';
-
-      $('roll').textContent =
-        rounds ? 'Следующий бросок' : 'Бросить кубики';
-
-      $('progress').textContent =
-        `Собрано пар: ${rounds} / ${Math.min(...ITEMS.map(a => a.length))}`;
+  if (category === "accessories") {
+    if (item.id === "bow") {
+      polygon([[324,133],[351,115],[351,151]], color);
+      polygon([[378,133],[351,115],[351,151]], color);
+      ellipse(351,133,8,10,"#bd477c");
     }
-
-    function setDie(side, color) {
-      $('die' + side).style.background = COLORS[color].hex;
-
-      $('die' + side).setAttribute(
-        'aria-label',
-        (side ? 'Правый' : 'Левый') +
-        ' кубик: ' +
-        COLORS[color].name
-      );
+    if (item.id === "crown") {
+      polygon([
+        [263,129],[255,91],[280,108],[300,77],
+        [320,108],[345,91],[337,129]
+      ], color);
     }
+  }
+}
 
-    function available(side) {
-      return ITEMS[side]
-        .map((item, index) => index)
-        .filter(index => !used[side].has(index));
-    }
+function render() {
+  ctx.clearRect(0, 0, 600, 800);
+  const background = getItem("backgrounds");
 
-    function roll() {
-      if (phase !== 'ready') return;
+  if (!background.src || !drawImage(background.src)) {
+    rectangle(0, 0, 600, 800, background.color);
+    ellipse(300, 385, 232, 325, "#ffffff66");
+    rectangle(0, 710, 600, 90, "#ffffff44");
+  }
 
-      selected = [null, null];
+  drawHero();
+  ["bottoms", "tops", "shoes", "hair", "accessories"].forEach(drawLayer);
+}
 
-      $('slot0').replaceChildren();
-      $('slot1').replaceChildren();
+function showWardrobe() {
+  const tabs = document.getElementById("tabs");
+  tabs.replaceChildren();
 
-      phase = 'rolling';
-      $('status').textContent = 'Кубики бросаются…';
+  Object.entries(catalog).forEach(([key, category]) => {
+    const button = document.createElement("button");
+    button.className = "tab" + (key === activeCategory ? " active" : "");
+    button.textContent = category.label;
+    button.setAttribute("aria-pressed", key === activeCategory);
+    button.onclick = () => {
+      activeCategory = key;
+      showWardrobe();
+    };
+    tabs.append(button);
+  });
 
+  document.getElementById("categoryTitle").textContent =
+    catalog[activeCategory].title;
+
+  const container = document.getElementById("items");
+  container.replaceChildren();
+
+  catalog[activeCategory].items.forEach(item => {
+    const button = document.createElement("button");
+    const isSelected = selected[activeCategory] === item.id;
+    button.className = "item" + (isSelected ? " selected" : "");
+    button.setAttribute("aria-pressed", isSelected);
+
+    const icon = document.createElement("span");
+    icon.className = "icon";
+    icon.textContent = item.icon;
+
+    const label = document.createElement("span");
+    label.textContent = item.name;
+
+    button.append(icon, label);
+    button.onclick = () => {
+      selected[activeCategory] = item.id;
       render();
+      showWardrobe();
+    };
+    container.append(button);
+  });
+}
 
-      [0, 1].forEach(side => {
-        $('die' + side).classList.add('rolling');
-      });
+document.getElementById("reset").onclick = () => {
+  selected = { ...initial };
+  render();
+  showWardrobe();
+  status.textContent = "";
+};
 
-      let ticks = 0;
+document.getElementById("shoot").onclick = () => {
+  try {
+    render();
+    photoUrl = canvas.toDataURL("image/png");
+    document.getElementById("photo").src = photoUrl;
+    dialog.showModal();
+    status.textContent = "";
+  } catch (error) {
+    status.textContent = "Не удалось сделать фото. Проверь файлы картинок.";
+  }
+};
 
-      timer = setInterval(() => {
-        [0, 1].forEach(side => {
-          setDie(side, Math.floor(Math.random() * 6));
-        });
+document.getElementById("download").onclick = () => {
+  if (!photoUrl) return;
+  const link = document.createElement("a");
+  link.href = photoUrl;
+  link.download = "my-look.png";
+  document.body.append(link);
+  link.click();
+  link.remove();
+};
 
-        if (++ticks >= 9) {
-          clearInterval(timer);
+document.getElementById("closePhoto").onclick = () => dialog.close();
 
-          [0, 1].forEach(side => {
-            const remaining = available(side);
+async function loadImages() {
+  const sources = [
+    heroSrc,
+    ...Object.values(catalog).flatMap(category =>
+      category.items.map(item => item.src)
+    )
+  ].filter(Boolean);
 
-            const randomIndex =
-              remaining[Math.floor(Math.random() * remaining.length)];
+  const failed = [];
+  await Promise.all([...new Set(sources)].map(src =>
+    new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        images.set(src, img);
+        resolve();
+      };
+      img.onerror = () => {
+        failed.push(src);
+        resolve();
+      };
+      img.src = src;
+    })
+  ));
 
-            targets[side] = ITEMS[side][randomIndex].color;
+  render();
+  if (failed.length) {
+    status.textContent = "Часть картинок не загрузилась. Проверь пути в коде.";
+  }
+}
 
-            setDie(side, targets[side]);
-            $('die' + side).classList.remove('rolling');
-          });
-
-          phase = 'choose';
-          $('status').textContent = 'Выбери картинку с каждой стороны';
-
-          render();
-        }
-      }, 80);
-    }
-
-    function choose(side, index) {
-      if (
-        phase !== 'choose' ||
-        selected[side] !== null ||
-        used[side].has(index)
-      ) {
-        return;
-      }
-
-      const item = ITEMS[side][index];
-
-      if (item.color !== targets[side]) {
-        $('status').textContent = 'Посмотри на цвет кубика ещё раз';
-        return;
-      }
-
-      selected[side] = index;
-      used[side].add(index);
-
-      $('slot' + side).replaceChildren(art(item));
-
-      if (selected.every(value => value !== null)) {
-        rounds++;
-
-        $('status').textContent =
-          `Девочка выбирает ${ITEMS[0][selected[0]].name}` +
-          ` и ${ITEMS[1][selected[1]].name}.`;
-
-        phase =
-          available(0).length && available(1).length
-            ? 'ready'
-            : 'done';
-
-        if (phase === 'done') {
-          $('status').textContent = 'Все картинки собраны! Молодец!';
-          celebrate();
-        }
-      } else {
-        $('status').textContent =
-          'Отлично! Теперь выбери на другой стороне';
-      }
-
-      render();
-    }
-
-    function celebrate() {
-      for (let index = 0; index < 35; index++) {
-        const element = document.createElement('span');
-
-        element.className = 'confetti';
-        element.textContent = ['⭐', '🎉', '✨'][index % 3];
-
-        element.style.left = Math.random() * 100 + 'vw';
-        element.style.animationDelay = Math.random() * .6 + 's';
-
-        document.body.append(element);
-
-        setTimeout(() => element.remove(), 3000);
-      }
-    }
-
-    function reset() {
-      clearInterval(timer);
-
-      document.querySelectorAll('.confetti').forEach(element => {
-        element.remove();
-      });
-
-      used = [new Set(), new Set()];
-      targets = [null, null];
-      selected = [null, null];
-      rounds = 0;
-      phase = 'ready';
-
-      [0, 1].forEach(side => {
-        $('slot' + side).replaceChildren();
-        $('die' + side).classList.remove('rolling');
-        $('die' + side).style.background = '#c9bfdc';
-      });
-
-      $('status').textContent = 'Нажми «Бросить кубики»';
-
-      render();
-    }
-
-    $('roll').onclick = roll;
-    $('reset').onclick = reset;
-    $('help').onclick = () => $('rules').showModal();
-    $('close').onclick = () => $('rules').close();
-
-    reset();
-    $('rules').showModal();
-  </script>
+showWardrobe();
+render();
+loadImages();
+</script>
 </body>
 </html>
