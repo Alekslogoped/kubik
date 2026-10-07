@@ -3,461 +3,594 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Моя одевалка</title>
+<title>Блогеры — одевалка</title>
 <style>
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f8f3ff;
-  color: #47375d;
-}
-button { font: inherit; cursor: pointer; }
-.header { text-align: center; padding: 18px 12px 8px; }
-.header h1 { margin: 0 0 8px; font-size: 28px; }
-.header p { margin: 0; }
-.game {
-  max-width: 1100px;
-  margin: 16px auto;
-  padding: 0 16px;
-  display: grid;
-  grid-template-columns: minmax(280px, 1fr) minmax(300px, 1fr);
-  gap: 20px;
-}
-.stage, .wardrobe {
-  background: white;
-  border-radius: 24px;
-  padding: 16px;
-  box-shadow: 0 8px 28px #65458112;
-}
-#scene {
-  display: block;
-  width: 100%;
-  max-height: 65vh;
-  object-fit: contain;
-  border-radius: 18px;
-}
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 14px;
-}
-.action {
-  border: 0;
-  border-radius: 14px;
-  padding: 13px 18px;
-  background: #efe8fa;
-  color: #47375d;
-  font-weight: bold;
-}
-.primary { background: #9260d5; color: white; }
-.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
-.tab {
-  border: 0;
-  background: #f3edf9;
-  color: #47375d;
-  border-radius: 12px;
-  padding: 11px 13px;
-}
-.tab.active { background: #9260d5; color: white; }
-#categoryTitle { font-size: 21px; margin: 24px 0 14px; }
-.items {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-.item {
-  min-height: 110px;
-  border: 3px solid transparent;
-  background: #f8f5fc;
-  border-radius: 18px;
-  padding: 12px 5px;
-  color: #47375d;
-}
-.item.selected { border-color: #9260d5; background: #f0e6ff; }
-.item .icon { display: block; font-size: 36px; margin-bottom: 8px; }
-.note { font-size: 14px; line-height: 1.5; color: #84758f; }
-dialog {
-  border: 0;
-  border-radius: 24px;
-  padding: 20px;
-  width: min(440px, 94vw);
-  max-height: 94vh;
-  overflow: auto;
-  text-align: center;
-}
-dialog::backdrop { background: #28193899; }
-dialog h2 { margin: 0 0 12px; }
-#photo { display: block; width: 100%; max-height: 62vh; object-fit: contain; }
-#status { text-align: center; min-height: 22px; }
-button:focus-visible, a:focus-visible {
-  outline: 3px solid #f7a531;
-  outline-offset: 3px;
-}
-@media (max-width: 700px) {
-  .game { grid-template-columns: 1fr; gap: 12px; }
-  #scene { max-height: 49vh; }
-  .header h1 { font-size: 24px; }
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;color:#49395e;background:#f3edfa}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid #ffb847;outline-offset:3px}
+.app{height:100vh;height:100dvh;display:flex;flex-direction:column;padding:10px;gap:10px}
+header{display:flex;align-items:center;justify-content:center;gap:15px}
+h1{font-size:23px;margin:0}
+.game{flex:1;min-height:0;display:grid;grid-template-columns:150px minmax(0,1fr) 150px;gap:10px}
+.panel{background:#ffffffed;border-radius:20px;padding:12px;overflow:auto}
+.panel h2{text-align:center;font-size:17px;margin:4px 0 12px}
+.items{display:grid;gap:9px}
+.item{border:2px solid transparent;background:#f4effa;border-radius:15px;padding:10px 5px;color:#49395e}
+.item.active{border-color:#a274d4;background:#eadefa}
+.item span{display:block;font-size:30px;margin-bottom:4px}
+.item small{font-size:13px}
+.stage{min-width:0;min-height:0;position:relative;background:#eae0f6;border-radius:24px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+canvas{display:block;width:100%;height:100%;object-fit:contain}
+.hint{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#ffffffdb;padding:8px 15px;border-radius:20px;font-size:14px;text-align:center;max-width:90%;pointer-events:none}
+.palette{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:min(440px,94%);background:white;border-radius:20px;padding:15px;box-shadow:0 8px 35px #49395e30}
+.palette[hidden]{display:none}
+.palette-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.palette-top strong{font-size:16px}
+.close{border:0;background:#f3edf8;border-radius:10px;width:34px;height:34px;color:#49395e}
+.colors{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.swatch{width:45px;height:45px;border-radius:50%;border:3px solid white;box-shadow:0 0 0 1px #ddd}
+.swatch.selected{box-shadow:0 0 0 3px #9060c9}
+.remove{margin-top:12px;border:0;background:#f2edf7;color:#655178;border-radius:10px;padding:9px 14px;width:100%}
+footer{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px}
+.action{border:0;border-radius:13px;padding:11px 16px;background:white;color:#49395e;font-weight:bold}
+.primary{background:#9666ce;color:white}
+dialog{border:0;border-radius:22px;padding:18px;width:min(900px,94vw);max-height:94vh;text-align:center}
+dialog::backdrop{background:#30223f99}
+dialog h2{margin:0 0 12px}
+#photo{display:block;width:100%;max-height:68vh;object-fit:contain;border-radius:15px}
+#status{font-size:13px;text-align:center;margin:0}
+@media(max-width:750px){
+ .game{grid-template-columns:95px minmax(0,1fr) 95px;gap:5px}
+ .app{padding:5px;gap:6px}
+ .panel{padding:6px;border-radius:14px}
+ .panel h2{font-size:13px}
+ .item{padding:8px 2px}
+ .item span{font-size:25px}
+ .item small{font-size:11px}
+ h1{font-size:18px}
+ .hint{font-size:11px;padding:6px 10px}
+ .action{font-size:12px;padding:10px}
 }
 </style>
 </head>
 <body>
-<header class="header">
-  <h1>✨ Моя одевалка</h1>
-  <p>Выбери образ и сделай фото!</p>
-</header>
+<div class="app">
+<header><h1>✨ Блогеры: создай образ!</h1></header>
 
 <main class="game">
-  <section class="stage" aria-label="Герой">
-    <canvas id="scene" width="600" height="800"
-      aria-label="Герой в выбранной одежде"></canvas>
-    <div class="actions">
-      <button class="action" id="reset">↩ Сначала</button>
-      <button class="action primary" id="shoot">📸 Сделать фото</button>
-    </div>
+  <aside class="panel">
+    <h2>👦 Мальчик</h2>
+    <div class="items" id="boyItems"></div>
+  </aside>
+
+  <section class="stage">
+    <canvas id="scene" width="1200" height="900"
+      aria-label="Мальчик и девочка в выбранных образах"></canvas>
+    <div class="hint">Выбери вещь → выбери цвет</div>
+
+    <section class="palette" id="palette" hidden aria-label="Выбор цвета">
+      <div class="palette-top">
+        <strong id="paletteTitle"></strong>
+        <button class="close" id="closePalette" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="colors" id="colors"></div>
+      <button class="remove" id="removeItem">Снять вещь</button>
+    </section>
   </section>
 
-  <section class="wardrobe">
-    <nav class="tabs" id="tabs" aria-label="Разделы гардероба"></nav>
-    <h2 id="categoryTitle"></h2>
-    <div class="items" id="items"></div>
-    <p class="note">Нажми на вещь, чтобы примерить её.</p>
-  </section>
+  <aside class="panel">
+    <h2>👧 Девочка</h2>
+    <div class="items" id="girlItems"></div>
+  </aside>
 </main>
 
+<footer>
+  <button class="action" id="reset">↩ Сначала</button>
+  <button class="action" id="changeBackground">🌈 Фон</button>
+  <button class="action primary" id="takePhoto">📸 Сделать фото</button>
+</footer>
 <p id="status" role="status"></p>
+</div>
 
 <dialog id="photoDialog">
-  <h2>📸 Твой образ готов!</h2>
-  <img id="photo" alt="Фото героя в выбранном образе">
-  <div class="actions">
-    <button class="action primary" id="download">⬇ Скачать фото</button>
-    <button class="action" id="closePhoto">Переодеть</button>
-  </div>
+  <h2>📸 Фото блогеров</h2>
+  <img id="photo" alt="Мальчик и девочка в выбранной одежде">
+  <footer style="margin-top:12px">
+    <button class="action primary" id="download">⬇ Скачать PNG</button>
+    <button class="action" id="return">Переодеть</button>
+  </footer>
 </dialog>
 
 <script>
-/*
-  НАШИ КАРТИНКИ
+// ---------- НАСТРОЙКИ КАРТИНОК И ЦВЕТОВ ----------
+// Пока src пустые — игра рисует демонстрационные вещи.
+// Затем сюда можно вписать: src: "images/boy-shirt-blue.png"
+// Герой и каждый слой одежды: прозрачный холст 400 × 800.
+// Расположение вещи на холсте должно совпадать с телом героя.
 
-  Сейчас src пустые — рисуются демонстрационные варианты.
-  Позже укажем пути, например:
-  heroSrc = "images/hero.png";
-  src: "images/top-pink.png"
-
-  Герой и все вещи: прозрачные PNG размером 600 × 800.
-  Вещь должна находиться на нужном месте относительно героя.
-  Фоны: 600 × 800, без прозрачности.
-*/
-const heroSrc = "";
-
-const catalog = {
-  tops: {
-    title: "Выбери верх", label: "👕 Верх",
-    items: [
-      { id: "pink", name: "Розовый", icon: "👚", color: "#f293bc", src: "" },
-      { id: "blue", name: "Голубой", icon: "👕", color: "#89c9ed", src: "" },
-      { id: "yellow", name: "Жёлтый", icon: "👕", color: "#f6d879", src: "" }
-    ]
-  },
-  bottoms: {
-    title: "Выбери низ", label: "👖 Низ",
-    items: [
-      { id: "skirt", name: "Юбка", icon: "👗", color: "#ba9ae5", src: "" },
-      { id: "jeans", name: "Джинсы", icon: "👖", color: "#729cd7", src: "" },
-      { id: "shorts", name: "Шорты", icon: "🩳", color: "#91cfbb", src: "" }
-    ]
-  },
-  shoes: {
-    title: "Выбери обувь", label: "👟 Обувь",
-    items: [
-      { id: "purple", name: "Сиреневая", icon: "🥿", color: "#9470cb", src: "" },
-      { id: "pink", name: "Розовая", icon: "👟", color: "#e68caf", src: "" },
-      { id: "mint", name: "Мятная", icon: "👟", color: "#75bbaa", src: "" }
-    ]
-  },
-  hair: {
-    title: "Выбери причёску", label: "💇 Волосы",
-    items: [
-      { id: "brown", name: "Каштановые", icon: "👩", color: "#80543d", src: "" },
-      { id: "blonde", name: "Светлые", icon: "👱‍♀️", color: "#e3bd68", src: "" },
-      { id: "red", name: "Рыжие", icon: "👩‍🦰", color: "#bc7044", src: "" }
-    ]
-  },
-  accessories: {
-    title: "Выбери аксессуар", label: "🎀 Аксессуары",
-    items: [
-      { id: "none", name: "Без украшения", icon: "✖", src: "" },
-      { id: "bow", name: "Бант", icon: "🎀", color: "#e76a9b", src: "" },
-      { id: "crown", name: "Корона", icon: "👑", color: "#efc752", src: "" }
-    ]
-  },
-  backgrounds: {
-    title: "Выбери фон", label: "🌈 Фон",
-    items: [
-      { id: "studio", name: "Студия", icon: "💜", color: "#eee3fa", src: "" },
-      { id: "garden", name: "Полянка", icon: "🌳", color: "#dff2e7", src: "" },
-      { id: "sunny", name: "Солнечный", icon: "☀️", color: "#fff0ce", src: "" }
-    ]
-  }
+const heroes = {
+  boy: {src:""},
+  girl: {src:""}
 };
 
-const initial = {
-  tops: "pink", bottoms: "skirt", shoes: "purple",
-  hair: "brown", accessories: "none", backgrounds: "studio"
+function variant(name, color, src="") {
+  return {name, color, src};
+}
+
+const wardrobe = {
+  boy: [
+    {
+      id:"shirt", slot:"top", name:"Футболка", icon:"👕",
+      variants:[
+        variant("Голубая","#7fbae8"),
+        variant("Красная","#ed7e83"),
+        variant("Зелёная","#82c5a6"),
+        variant("Жёлтая","#f2cf72")
+      ]
+    },
+    {
+      id:"hoodie", slot:"top", name:"Худи", icon:"🧥",
+      variants:[
+        variant("Фиолетовое","#a58ace"),
+        variant("Синее","#6f95cf"),
+        variant("Оранжевое","#eead6f")
+      ]
+    },
+    {
+      id:"pants", slot:"bottom", name:"Брюки", icon:"👖",
+      variants:[
+        variant("Синие","#7394c2"),
+        variant("Серые","#9294a4"),
+        variant("Бежевые","#cfb596")
+      ]
+    },
+    {
+      id:"shorts", slot:"bottom", name:"Шорты", icon:"🩳",
+      variants:[
+        variant("Зелёные","#83bda3"),
+        variant("Голубые","#82b7dd"),
+        variant("Жёлтые","#e8c86d")
+      ]
+    },
+    {
+      id:"shoes", slot:"shoes", name:"Кроссовки", icon:"👟",
+      variants:[
+        variant("Белые","#f8f8fc"),
+        variant("Синие","#638fc9"),
+        variant("Красные","#df737f")
+      ]
+    },
+    {
+      id:"cap", slot:"head", name:"Кепка", icon:"🧢",
+      variants:[
+        variant("Синяя","#6b97cf"),
+        variant("Зелёная","#70af90"),
+        variant("Красная","#e0787d")
+      ]
+    },
+    {
+      id:"glasses", slot:"glasses", name:"Очки", icon:"🕶️",
+      variants:[
+        variant("Чёрные","#494355"),
+        variant("Синие","#638fc9")
+      ]
+    }
+  ],
+
+  girl: [
+    {
+      id:"shirt", slot:"top", name:"Футболка", icon:"👚",
+      variants:[
+        variant("Розовая","#eb92b8"),
+        variant("Сиреневая","#b69bdc"),
+        variant("Мятная","#8acbbb"),
+        variant("Жёлтая","#f1d07b")
+      ]
+    },
+    {
+      id:"hoodie", slot:"top", name:"Худи", icon:"🧥",
+      variants:[
+        variant("Розовое","#e697bb"),
+        variant("Сиреневое","#b49cda"),
+        variant("Голубое","#8cbfe0")
+      ]
+    },
+    {
+      id:"skirt", slot:"bottom", name:"Юбка", icon:"👗",
+      variants:[
+        variant("Сиреневая","#ab8fd0"),
+        variant("Розовая","#e58eae"),
+        variant("Голубая","#8ab5dc")
+      ]
+    },
+    {
+      id:"pants", slot:"bottom", name:"Брюки", icon:"👖",
+      variants:[
+        variant("Синие","#789ac8"),
+        variant("Розовые","#d9a0b9"),
+        variant("Бежевые","#ceb69a")
+      ]
+    },
+    {
+      id:"shoes", slot:"shoes", name:"Туфли", icon:"🥿",
+      variants:[
+        variant("Розовые","#de83a7"),
+        variant("Сиреневые","#a084c7"),
+        variant("Белые","#faf8fc")
+      ]
+    },
+    {
+      id:"bow", slot:"head", name:"Бант", icon:"🎀",
+      variants:[
+        variant("Розовый","#e777a7"),
+        variant("Жёлтый","#ebc761"),
+        variant("Голубой","#79b7db")
+      ]
+    },
+    {
+      id:"glasses", slot:"glasses", name:"Очки", icon:"👓",
+      variants:[
+        variant("Розовые","#d875a0"),
+        variant("Сиреневые","#9773bd")
+      ]
+    }
+  ]
 };
 
-let selected = { ...initial };
-let activeCategory = "tops";
-let photoUrl = "";
-
+// ---------- СОСТОЯНИЕ ИГРЫ ----------
 const canvas = document.getElementById("scene");
 const ctx = canvas.getContext("2d");
+const palette = document.getElementById("palette");
 const dialog = document.getElementById("photoDialog");
 const status = document.getElementById("status");
-const images = new Map();
+const imageCache = new Map();
 
-function getItem(category) {
-  return catalog[category].items.find(item => item.id === selected[category]);
+let outfits, opened = null, backgroundIndex = 0, photoUrl = "";
+const backgrounds = ["#eee4f8","#e1f0ed","#f9edda"];
+
+function defaultOutfits() {
+  return {
+    boy:{
+      top:{id:"shirt",index:0},
+      bottom:{id:"pants",index:0},
+      shoes:{id:"shoes",index:0}
+    },
+    girl:{
+      top:{id:"shirt",index:0},
+      bottom:{id:"skirt",index:0},
+      shoes:{id:"shoes",index:0}
+    }
+  };
 }
+outfits = defaultOutfits();
 
-function ellipse(x, y, rx, ry, color) {
-  ctx.fillStyle = color;
+function ellipse(x,y,rx,ry,color) {
+  ctx.fillStyle=color;
   ctx.beginPath();
-  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);
   ctx.fill();
 }
-
-function polygon(points, color) {
-  ctx.fillStyle = color;
+function rect(x,y,w,h,color) {
+  ctx.fillStyle=color;
+  ctx.fillRect(x,y,w,h);
+}
+function poly(points,color) {
+  ctx.fillStyle=color;
   ctx.beginPath();
-  points.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+  points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
   ctx.closePath();
   ctx.fill();
 }
-
-function rectangle(x, y, w, h, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, w, h);
+function stroke(points,color,width=5) {
+  ctx.strokeStyle=color;
+  ctx.lineWidth=width;
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+  ctx.beginPath();
+  points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+  ctx.stroke();
 }
-
-function drawImage(src) {
-  const img = images.get(src);
-  if (!img) return false;
-  ctx.drawImage(img, 0, 0, 600, 800);
+function imageLayer(src) {
+  const img=imageCache.get(src);
+  if(!img) return false;
+  ctx.drawImage(img,0,0,400,800);
   return true;
 }
 
-function drawHero() {
-  if (heroSrc && drawImage(heroSrc)) return;
+function drawBase(person) {
+  if(heroes[person].src && imageLayer(heroes[person].src)) return;
 
-  const skin = "#f6ceb3";
-  ellipse(300, 702, 110, 18, "#00000012");
+  const skin="#f4cdb3";
+  const hair=person==="boy"?"#785344":"#986444";
 
-  // Ноги, руки, шея и тело.
-  rectangle(253, 480, 38, 192, skin);
-  rectangle(309, 480, 38, 192, skin);
-  ellipse(232, 396, 22, 100, skin);
-  ellipse(368, 396, 22, 100, skin);
-  rectangle(282, 260, 36, 48, skin);
-  ellipse(300, 390, 65, 110, skin);
+  if(person==="girl") {
+    ellipse(140,211,38,117,hair);
+    ellipse(260,211,38,117,hair);
+  }
 
-  // Базовая одежда.
-  rectangle(244, 320, 112, 145, "#ffffff");
-  rectangle(250, 460, 100, 50, "#ffffff");
+  // Тело и базовый костюм.
+  rect(157,500,35,217,skin);
+  rect(208,500,35,217,skin);
+  ellipse(116,400,20,113,skin);
+  ellipse(284,400,20,113,skin);
+  rect(183,240,34,65,skin);
+  ellipse(200,400,65,130,skin);
+  rect(143,312,114,176,"#fff9f3");
+  rect(145,483,110,48,"#fff9f3");
 
-  // Голова, уши и лицо.
-  ellipse(236, 205, 13, 22, skin);
-  ellipse(364, 205, 13, 22, skin);
-  ellipse(300, 205, 66, 80, skin);
-  ellipse(277, 207, 6, 9, "#493e43");
-  ellipse(323, 207, 6, 9, "#493e43");
-  ellipse(263, 234, 12, 7, "#efacaa");
-  ellipse(337, 234, 12, 7, "#efacaa");
+  ellipse(136,189,12,22,skin);
+  ellipse(264,189,12,22,skin);
+  ellipse(200,183,66,81,skin);
 
-  ctx.strokeStyle = "#bd786e";
-  ctx.lineWidth = 4;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.arc(300, 234, 15, 0.15, Math.PI - 0.15);
-  ctx.stroke();
+  ellipse(200,119,68,34,hair);
+  poly([[137,129],[257,124],[245,163],[211,138],[166,165]],hair);
+
+  if(person==="boy") {
+    poly([[143,113],[163,82],[177,111],[205,87],[211,119]],hair);
+  }
+
+  ellipse(176,185,6,9,"#493b3a");
+  ellipse(224,185,6,9,"#493b3a");
+  ellipse(163,214,12,7,"#eca9a1");
+  ellipse(237,214,12,7,"#eca9a1");
+  stroke([[185,225],[200,233],[215,225]],"#ba766f",4);
 }
 
-function drawLayer(category) {
-  const item = getItem(category);
-  if (item.src && drawImage(item.src)) return;
+function drawClothing(person,slot) {
+  const choice=outfits[person][slot];
+  if(!choice) return;
+  const item=wardrobe[person].find(item=>item.id===choice.id);
+  const option=item.variants[choice.index];
+  if(option.src && imageLayer(option.src)) return;
+  const color=option.color;
 
-  const color = item.color;
-  if (category === "bottoms") {
-    if (item.id === "skirt") {
-      polygon([[245,430],[355,430],[384,554],[216,554]], color);
+  if(slot==="bottom") {
+    if(item.id==="skirt") {
+      poly([[143,457],[257,457],[294,584],[106,584]],color);
+      stroke([[171,479],[158,563]],"#ffffff50",4);
+      stroke([[229,479],[242,563]],"#ffffff50",4);
     } else {
-      const height = item.id === "jeans" ? 195 : 82;
-      rectangle(245, 438, 110, 42, color);
-      rectangle(245, 470, 47, height, color);
-      rectangle(308, 470, 47, height, color);
+      const length=item.id==="shorts"?98:229;
+      rect(143,461,114,43,color);
+      rect(143,495,49,length,color);
+      rect(208,495,49,length,color);
     }
   }
 
-  if (category === "tops") {
-    polygon([
-      [265,300],[282,291],[300,311],[318,291],[335,300],
-      [387,343],[364,377],[351,351],[355,452],
-      [245,452],[249,351],[236,377],[213,343]
-    ], color);
-    ellipse(300, 350, 13, 13, "#ffffff88");
-  }
-
-  if (category === "shoes") {
-    ellipse(267, 678, 35, 17, color);
-    ellipse(333, 678, 35, 17, color);
-  }
-
-  if (category === "hair") {
-    ellipse(300, 142, 70, 39, color);
-    ellipse(240, 190, 17, 59, color);
-    ellipse(360, 190, 17, 59, color);
-    polygon([[242,148],[351,146],[335,184],[294,159],[257,190]], color);
-  }
-
-  if (category === "accessories") {
-    if (item.id === "bow") {
-      polygon([[324,133],[351,115],[351,151]], color);
-      polygon([[378,133],[351,115],[351,151]], color);
-      ellipse(351,133,8,10,"#bd477c");
+  if(slot==="top") {
+    if(item.id==="hoodie") {
+      ellipse(200,296,49,30,color);
     }
-    if (item.id === "crown") {
-      polygon([
-        [263,129],[255,91],[280,108],[300,77],
-        [320,108],[345,91],[337,129]
-      ], color);
+    poly([
+      [162,293],[183,283],[200,302],[217,283],[238,293],
+      [307,341],[286,388],[258,362],[260,480],
+      [140,480],[142,362],[114,388],[93,341]
+    ],color);
+    if(item.id==="hoodie") {
+      stroke([[190,309],[187,359]],"#ffffffbb",4);
+      stroke([[210,309],[213,359]],"#ffffffbb",4);
+      stroke([[168,430],[232,430]],"#ffffff77",5);
+    } else {
+      ellipse(200,357,17,17,"#ffffffaa");
     }
   }
+
+  if(slot==="shoes") {
+    ellipse(168,729,38,18,color);
+    ellipse(232,729,38,18,color);
+    stroke([[139,739],[196,739]],"#c8c5d2",4);
+    stroke([[204,739],[261,739]],"#c8c5d2",4);
+  }
+
+  if(slot==="head") {
+    if(item.id==="cap") {
+      ellipse(200,117,70,38,color);
+      rect(139,120,129,17,color);
+      ellipse(260,139,42,10,color);
+    } else {
+      poly([[233,118],[267,94],[267,142]],color);
+      poly([[301,118],[267,94],[267,142]],color);
+      ellipse(267,118,9,12,color);
+    }
+  }
+
+  if(slot==="glasses") {
+    ctx.strokeStyle=color;
+    ctx.lineWidth=6;
+    ctx.beginPath();
+    ctx.ellipse(173,187,22,18,0,0,Math.PI*2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(227,187,22,18,0,0,Math.PI*2);
+    ctx.stroke();
+    stroke([[196,185],[204,185]],color,5);
+    stroke([[150,181],[138,177]],color,5);
+    stroke([[250,181],[262,177]],color,5);
+  }
+}
+
+function drawPerson(person,x) {
+  ctx.save();
+  ctx.translate(x,82);
+  drawBase(person);
+  ["bottom","top","shoes","head","glasses"].forEach(slot=>
+    drawClothing(person,slot)
+  );
+  ctx.restore();
 }
 
 function render() {
-  ctx.clearRect(0, 0, 600, 800);
-  const background = getItem("backgrounds");
+  ctx.clearRect(0,0,1200,900);
+  rect(0,0,1200,900,backgrounds[backgroundIndex]);
+  ellipse(600,390,540,410,"#ffffff55");
+  rect(0,750,1200,150,"#ffffff55");
 
-  if (!background.src || !drawImage(background.src)) {
-    rectangle(0, 0, 600, 800, background.color);
-    ellipse(300, 385, 232, 325, "#ffffff66");
-    rectangle(0, 710, 600, 90, "#ffffff44");
-  }
+  // Оформление студии блогеров.
+  stroke([[80,765],[80,500]],"#b4a5c5",8);
+  stroke([[80,765],[42,812]],"#b4a5c5",7);
+  stroke([[80,765],[118,812]],"#b4a5c5",7);
+  ctx.strokeStyle="#ffffff";
+  ctx.lineWidth=15;
+  ctx.beginPath();
+  ctx.arc(80,446,57,0,Math.PI*2);
+  ctx.stroke();
 
-  drawHero();
-  ["bottoms", "tops", "shoes", "hair", "accessories"].forEach(drawLayer);
+  rect(1070,466,59,96,"#c2b1d5");
+  rect(1078,477,43,69,"#ece5f3");
+  stroke([[1100,563],[1100,775]],"#b4a5c5",7);
+  stroke([[1100,775],[1060,814]],"#b4a5c5",6);
+  stroke([[1100,775],[1140,814]],"#b4a5c5",6);
+
+  ellipse(410,838,110,19,"#65527716");
+  ellipse(790,838,110,19,"#65527716");
+  drawPerson("boy",210);
+  drawPerson("girl",590);
 }
 
-function showWardrobe() {
-  const tabs = document.getElementById("tabs");
-  tabs.replaceChildren();
+function renderPanels() {
+  ["boy","girl"].forEach(person=>{
+    const container=document.getElementById(person+"Items");
+    container.replaceChildren();
 
-  Object.entries(catalog).forEach(([key, category]) => {
-    const button = document.createElement("button");
-    button.className = "tab" + (key === activeCategory ? " active" : "");
-    button.textContent = category.label;
-    button.setAttribute("aria-pressed", key === activeCategory);
-    button.onclick = () => {
-      activeCategory = key;
-      showWardrobe();
-    };
-    tabs.append(button);
+    wardrobe[person].forEach(item=>{
+      const button=document.createElement("button");
+      const selected=outfits[person][item.slot];
+      const active=selected && selected.id===item.id;
+      button.className="item"+(active?" active":"");
+      button.setAttribute("aria-pressed",!!active);
+
+      const icon=document.createElement("span");
+      icon.textContent=item.icon;
+      const label=document.createElement("small");
+      label.textContent=item.name;
+      button.append(icon,label);
+
+      button.onclick=()=>openPalette(person,item);
+      container.append(button);
+    });
   });
+}
 
-  document.getElementById("categoryTitle").textContent =
-    catalog[activeCategory].title;
+function openPalette(person,item) {
+  opened={person,item};
+  palette.hidden=false;
+  document.getElementById("paletteTitle").textContent=
+    (person==="boy"?"👦 ":"👧 ")+item.name+": выбери цвет";
+  renderColors();
+}
 
-  const container = document.getElementById("items");
+function renderColors() {
+  const {person,item}=opened;
+  const container=document.getElementById("colors");
   container.replaceChildren();
+  const current=outfits[person][item.slot];
 
-  catalog[activeCategory].items.forEach(item => {
-    const button = document.createElement("button");
-    const isSelected = selected[activeCategory] === item.id;
-    button.className = "item" + (isSelected ? " selected" : "");
-    button.setAttribute("aria-pressed", isSelected);
-
-    const icon = document.createElement("span");
-    icon.className = "icon";
-    icon.textContent = item.icon;
-
-    const label = document.createElement("span");
-    label.textContent = item.name;
-
-    button.append(icon, label);
-    button.onclick = () => {
-      selected[activeCategory] = item.id;
+  item.variants.forEach((option,index)=>{
+    const button=document.createElement("button");
+    const selected=current && current.id===item.id && current.index===index;
+    button.className="swatch"+(selected?" selected":"");
+    button.style.background=option.color;
+    button.title=option.name;
+    button.setAttribute("aria-label",option.name);
+    button.setAttribute("aria-pressed",!!selected);
+    button.onclick=()=>{
+      outfits[person][item.slot]={id:item.id,index};
       render();
-      showWardrobe();
+      renderPanels();
+      renderColors();
     };
     container.append(button);
   });
 }
 
-document.getElementById("reset").onclick = () => {
-  selected = { ...initial };
+function closePalette() {
+  palette.hidden=true;
+  opened=null;
+}
+
+document.getElementById("closePalette").onclick=closePalette;
+document.getElementById("removeItem").onclick=()=>{
+  if(!opened) return;
+  const {person,item}=opened;
+  delete outfits[person][item.slot];
   render();
-  showWardrobe();
-  status.textContent = "";
+  renderPanels();
+  renderColors();
 };
 
-document.getElementById("shoot").onclick = () => {
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape") closePalette();
+});
+
+document.getElementById("reset").onclick=()=>{
+  outfits=defaultOutfits();
+  backgroundIndex=0;
+  closePalette();
+  render();
+  renderPanels();
+  status.textContent="";
+};
+
+document.getElementById("changeBackground").onclick=()=>{
+  backgroundIndex=(backgroundIndex+1)%backgrounds.length;
+  render();
+};
+
+document.getElementById("takePhoto").onclick=()=>{
+  closePalette();
+  render();
   try {
-    render();
-    photoUrl = canvas.toDataURL("image/png");
-    document.getElementById("photo").src = photoUrl;
+    photoUrl=canvas.toDataURL("image/png");
+    document.getElementById("photo").src=photoUrl;
     dialog.showModal();
-    status.textContent = "";
-  } catch (error) {
-    status.textContent = "Не удалось сделать фото. Проверь файлы картинок.";
+    status.textContent="";
+  } catch(error) {
+    status.textContent="Не удалось сделать фото. Проверь файлы картинок.";
   }
 };
 
-document.getElementById("download").onclick = () => {
-  if (!photoUrl) return;
-  const link = document.createElement("a");
-  link.href = photoUrl;
-  link.download = "my-look.png";
+document.getElementById("return").onclick=()=>dialog.close();
+document.getElementById("download").onclick=()=>{
+  if(!photoUrl) return;
+  const link=document.createElement("a");
+  link.href=photoUrl;
+  link.download="bloggers-photo.png";
   document.body.append(link);
   link.click();
   link.remove();
 };
 
-document.getElementById("closePhoto").onclick = () => dialog.close();
-
 async function loadImages() {
-  const sources = [
-    heroSrc,
-    ...Object.values(catalog).flatMap(category =>
-      category.items.map(item => item.src)
+  const sources=[
+    ...Object.values(heroes).map(hero=>hero.src),
+    ...Object.values(wardrobe).flatMap(items=>
+      items.flatMap(item=>item.variants.map(option=>option.src))
     )
   ].filter(Boolean);
 
-  const failed = [];
-  await Promise.all([...new Set(sources)].map(src =>
-    new Promise(resolve => {
-      const img = new Image();
-      img.onload = () => {
-        images.set(src, img);
+  const failed=[];
+  await Promise.all([...new Set(sources)].map(src=>
+    new Promise(resolve=>{
+      const image=new Image();
+      image.onload=()=>{
+        imageCache.set(src,image);
         resolve();
       };
-      img.onerror = () => {
+      image.onerror=()=>{
         failed.push(src);
         resolve();
       };
-      img.src = src;
+      image.src=src;
     })
   ));
-
   render();
-  if (failed.length) {
-    status.textContent = "Часть картинок не загрузилась. Проверь пути в коде.";
+  if(failed.length) {
+    status.textContent="Некоторые картинки не загрузились. Проверь пути.";
   }
 }
 
-showWardrobe();
+renderPanels();
 render();
 loadImages();
 </script>
